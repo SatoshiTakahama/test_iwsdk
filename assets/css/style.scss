@@ -1,0 +1,44 @@
+---
+---
+
+/* 全体のレイアウト設定（横並びにする） */
+.page-layout {
+  display: flex;
+  flex-direction: row-reverse; /* 本文を左、目次を右にする場合。逆なら row */
+  align-items: flex-start;
+  gap: 30px; /* 目次と本文の間の余白 */
+}
+
+/* 本文エリアのスタイル */
+.content-body {
+  flex: 1; /* 残りの幅をすべて使う */
+  min-width: 0;
+}
+
+/* 目次エリア（サイドバー）のスタイル */
+.toc-sidebar {
+  width: 250px; /* 目次幅の固定値 */
+  flex-shrink: 0;
+  
+  /* スクロールしても目次を画面内に固定する（追従機能） */
+  position: sticky;
+  top: 20px; /* 画面上部からの固定位置 */
+  max-height: calc(100vh - 40px); /* 画面からはみ出る場合は目次内スクロール */
+  overflow-y: auto;
+  
+  background-color: #f9f9f9; /* 背景色（お好みで） */
+  padding: 15px;
+  border-radius: 5px;
+}
+
+/* モバイル対応：画面が狭いときは上下に並べる */
+@media (max-width: 768px) {
+  .page-layout {
+    flex-direction: column; /* 上下に並べる */
+  }
+  .toc-sidebar {
+    width: 100%;
+    position: static; /* 固定を解除 */
+    max-height: none;
+  }
+}
