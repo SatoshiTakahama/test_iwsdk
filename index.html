@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" />
+  <title>Immersive Web SDKによるWebXR開発</title>
+
+  <link rel="stylesheet" href="/test_iwsdk/assets/css/style.css">
+  <link rel="stylesheet" href="/test_iwsdk/assets/css/syntax.css">
+
+  <!-- GitHub Pages でも動く最低限のスタイル -->
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 1800px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+    header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    footer {
+      margin-top: 40px;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
+      font-size: 0.9em;
+      color: #666;
+    }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Immersive Web SDKによるWebXR開発</h1>
+  </header>
+
+  <main>
+    <div class="page-layout">
+
+  <p><!-- 目次エリア --></p>
+  <nav id="toc-container" class="toc-sidebar">
+
+    <h2 id="section">目次</h2>
+<ul id="markdown-toc">
+  <li><a href="#section" id="markdown-toc-section">目次</a></li>
+  <li><a href="#immersive-web-sdk" id="markdown-toc-immersive-web-sdk">Immersive Web SDK関連ページへのリンク</a></li>
+  <li><a href="#section-1" id="markdown-toc-section-1">ビルド済みページへのリンク</a></li>
+  <li><a href="#tips" id="markdown-toc-tips">開発Tips</a>    <ul>
+      <li><a href="#ai" id="markdown-toc-ai">AIエージェント</a></li>
+      <li><a href="#section-2" id="markdown-toc-section-2">トラブル対応</a>        <ul>
+          <li><a href="#npm-run-devhttpslocalhost8081" id="markdown-toc-npm-run-devhttpslocalhost8081"><code class="language-plaintext highlighter-rouge">npm run dev</code>で起動したときにブラウザからhttps://localhost:8081/でアクセスできない</a></li>
+          <li><a href="#npm-run-build--npm-run-preview--xr-" id="markdown-toc-npm-run-build--npm-run-preview--xr-"><code class="language-plaintext highlighter-rouge">npm run build</code> + <code class="language-plaintext highlighter-rouge">npm run preview</code> で XR セッションが開始できない</a></li>
+          <li><a href="#npm-run-buildmetaspatialcomponents-iwsdkphysicsbodyxml-" id="markdown-toc-npm-run-buildmetaspatialcomponents-iwsdkphysicsbodyxml-"><code class="language-plaintext highlighter-rouge">npm run build</code>を実行すると<code class="language-plaintext highlighter-rouge">metaspatial/components/</code> ディレクトリ内のファイル（<code class="language-plaintext highlighter-rouge">IWSDKPhysicsBody.xml</code> など）が消失する</a></li>
+          <li><a href="#github-pages--xr-" id="markdown-toc-github-pages--xr-">GitHub Pages にデプロイすると XR セッションが開始できない</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+  </nav>
+
+  <p><!-- 本文エリア --></p>
+  <main class="content-body">
+
+    <p>Immersive Web SDKによるWebXR開発について調査した内容について記載しています。</p>
+
+    <h2 id="immersive-web-sdk">Immersive Web SDK関連ページへのリンク</h2>
+    <ul>
+      <li><a href="https://iwsdk.dev/">Immersive Web SDKのGitHub Pages</a></li>
+      <li><a href="https://github.com/facebook/immersive-web-sdk">Immersive Web SDKのGitHub</a></li>
+      <li><a href="https://developers.meta.com/horizon/blog/immersive-web-sdk-new-era-spatial-web-development/">MetaによるImmersive Web SDKの紹介記事1</a></li>
+      <li><a href="https://developers.meta.com/horizon/blog/accelerate-vr-development-with-ai-and-immersive-web-sdk/">MetaによるImmersive Web SDKの紹介記事2</a></li>
+    </ul>
+
+    <h2 id="section-1">ビルド済みページへのリンク</h2>
+    <p>Immersive Web SDKで作成したプロジェクト雛形をビルドしたページへのリンクです。</p>
+    <ul>
+      <li><a href="./dist-examples/vr/index.html">Virtual Reality</a></li>
+      <li><a href="./dist-examples/ar/index.html">Augmented Reality</a></li>
+    </ul>
+
+    <h2 id="tips">開発Tips</h2>
+    <p>自分がImmersive Web SDKで作業したときに対応した内容を紹介します。
+2026年7月時点での情報です。</p>
+    <h3 id="ai">AIエージェント</h3>
+    <p>Immersive Web SDKのプロジェクト雛形を生成するときに、連携するAIエージェントを選択できます。
+複数設定も可能で選択したAIエージェント向けのファイルが追加されます。
+自分はClaude Codeを選択しており、windows上でLM Studio + qwen3.6-35b-a3bと組み合わせて使用しています。</p>
+
+    <p>自分の環境では、LM Studioの応答が遅すぎるためにClaude Codeが処理を途中で強制終了することが頻発しました。
+settings.jsonに以下の設定を追加することで対策しています。</p>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:1234",
+    "ANTHROPIC_AUTH_TOKEN": "lmstudio",
+    "CLAUDE_CODE_ATTRIBUTION_HEADER": "0",
+    "API_TIMEOUT_MS": "3600000",
+    "CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS": "3600000",
+    "BASH_DEFAULT_TIMEOUT_MS": "1800000",
+    "BASH_MAX_TIMEOUT_MS": "3600000",
+    "CLAUDE_ENABLE_STREAM_WATCHDOG": "0",
+    "API_FORCE_IDLE_TIMEOUT": "0"
+  }
+</code></pre></div>    </div>
+
+    <p>現時点ではLM StudioのAnthropic互換APIがテキスト生成のみ対応していることが原因で、
+画面キャプチャ(browser_screenshot)を実行するとエラーが発生する制限事項があります。</p>
+
+    <h3 id="section-2">トラブル対応</h3>
+    <h4 id="npm-run-devhttpslocalhost8081"><code class="language-plaintext highlighter-rouge">npm run dev</code>で起動したときにブラウザからhttps://localhost:8081/でアクセスできない</h4>
+    <ul>
+      <li>原因
+自分の環境では8081は別の用途で使用されており競合発生していた。</li>
+      <li>対策
+<code class="language-plaintext highlighter-rouge">vite.config.js</code>のポート設定を競合しない番号に変更した。
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>server: { host: "0.0.0.0", port: 8081 },
+これを以下に変更
+server: { host: "0.0.0.0", port: 18081 },
+</code></pre></div>        </div>
+      </li>
+    </ul>
+
+    <h4 id="npm-run-build--npm-run-preview--xr-"><code class="language-plaintext highlighter-rouge">npm run build</code> + <code class="language-plaintext highlighter-rouge">npm run preview</code> で XR セッションが開始できない</h4>
+    <ul>
+      <li>原因
+<code class="language-plaintext highlighter-rouge">vite.config.ts</code> の<code class="language-plaintext highlighter-rouge">iwsdkDev</code>プラグインは <code class="language-plaintext highlighter-rouge">injectOnBuild: false</code>（デフォルト値）に設定されているため、<code class="language-plaintext highlighter-rouge">npm run build</code>時にIWER (Immersive Web Emulation Runtime)がHTMLに注入されない。</li>
+      <li>対策
+<code class="language-plaintext highlighter-rouge">vite.config.ts</code>のemulatorオプションに<code class="language-plaintext highlighter-rouge">injectOnBuild:true</code>を設定。
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iwsdkDev({
+emulator: {
+  device: "metaQuest3",
+  injectOnBuild: true,  // ← これを追加
+},
+ai: { mode: "agent" },
+verbose: true,
+}),
+</code></pre></div>        </div>
+      </li>
+    </ul>
+
+    <h4 id="npm-run-buildmetaspatialcomponents-iwsdkphysicsbodyxml-"><code class="language-plaintext highlighter-rouge">npm run build</code>を実行すると<code class="language-plaintext highlighter-rouge">metaspatial/components/</code> ディレクトリ内のファイル（<code class="language-plaintext highlighter-rouge">IWSDKPhysicsBody.xml</code> など）が消失する</h4>
+    <ul>
+      <li>原因
+<code class="language-plaintext highlighter-rouge">vite.config.ts</code>で使われている <code class="language-plaintext highlighter-rouge">discoverComponents</code>プラグインのデフォルト設定<code class="language-plaintext highlighter-rouge">clean: true</code>が原因。</li>
+      <li>対策
+<code class="language-plaintext highlighter-rouge">vite.config.ts</code>で<code class="language-plaintext highlighter-rouge">clean: false</code>を設定する。
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>discoverComponents({
+outputDir: "metaspatial/components",
+include: /\.(js|ts|jsx|tsx)$/,
+exclude: /node_modules/,
+verbose: false,
+clean: false,  // ← これを追加
+}),
+</code></pre></div>        </div>
+      </li>
+    </ul>
+
+    <h4 id="github-pages--xr-">GitHub Pages にデプロイすると XR セッションが開始できない</h4>
+    <ul>
+      <li>原因
+<code class="language-plaintext highlighter-rouge">iwsdkDev</code> プラグインのデフォルト <code class="language-plaintext highlighter-rouge">activation: 'localhost'</code> により、IWER polyfill が localhost 以外のオリジン（GitHub Pages）で無効化されていた。</li>
+      <li>対策
+<code class="language-plaintext highlighter-rouge">vite.config.ts</code>のemulatorオプションに<code class="language-plaintext highlighter-rouge">activation: 'always'</code>を設定。
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>iwsdkDev({
+emulator: {
+  device: "metaQuest3",
+  injectOnBuild: true,
+  activation: 'always',  // ← これを追加
+},
+ai: { mode: "agent" },
+verbose: true,
+}),
+</code></pre></div>        </div>
+      </li>
+    </ul>
+
+  </main>
+</div>
+
+  </main>
+
+  <footer>
+    <p>Generated with Jekyll / GitHub Pages</p>
+  </footer>
+</body>
+</html>
